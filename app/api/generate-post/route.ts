@@ -5,7 +5,7 @@ import fs from "fs"
 import path from "path"
 import axios from "axios"
 
-export async function POST(request: NextRequest) {
+export default async function handler(request: NextRequest) {
   const baseTopic = "Business and Artificial Intelligence News and Current Updates"
   const newsApiKey = process.env.NEWS_API_KEY
   const groqKey = process.env.GROQ_API_KEY
@@ -265,7 +265,7 @@ ${aiText}
   })
 }
 
-export async function GET() {
+/* export async function GET() {
   return NextResponse.json({
     message: "AI Blog Post Generator API",
     endpoints: {
@@ -273,3 +273,4 @@ export async function GET() {
     },
   })
 }
+*/
