@@ -1,28 +1,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Bot, Zap, Clock, GitBranch, Search, Rss } from "lucide-react"
+import { Bot, Sparkles, TrendingUp, Users, Zap, Globe } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
-import { SearchBar } from "@/components/search-bar"
 import { Footer } from "@/components/footer"
 import { MobileNav } from "@/components/mobile-nav"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 font-mono">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800 font-mono">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <Bot className="h-8 w-8 text-[#F5A353]" />
-              <span className="text-2xl font-bold text-gray-900">AI News Hub</span>
+              <span className="text-2xl font-bold text-foreground">AI News Hub</span>
             </Link>
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="/blog" className="text-gray-600 hover:text-[#F5A353] transition-colors">
+              <Link href="/blog" className="text-muted-foreground hover:text-[#F5A353] transition-colors">
                 Blog
               </Link>
-              <Link href="/tags" className="text-gray-600 hover:text-[#F5A353] transition-colors">
+              <Link href="/tags" className="text-muted-foreground hover:text-[#F5A353] transition-colors">
                 Tags
               </Link>
               <Link href="/about" className="text-[#F5A353] font-medium">
@@ -30,9 +28,7 @@ export default function AboutPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="hidden md:block">
-                <SearchBar />
-              </div>
+              <ThemeToggle />
               <MobileNav />
             </div>
           </nav>
@@ -40,269 +36,164 @@ export default function AboutPage() {
       </header>
 
       <div className="container mx-auto px-4 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <Bot className="h-12 w-12 text-[#F5A353]" />
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              About <span className="text-[#F5A353]">AI News Hub</span>
-            </h1>
-          </div>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            We're revolutionizing news consumption through artificial intelligence. Our platform automatically generates
-            daily insights on business, technology, education, and AI trends, delivering fresh perspectives powered by
-            advanced machine learning.
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            About <span className="text-[#F5A353]">AI News Hub</span>
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            We're revolutionizing news consumption through artificial intelligence, delivering comprehensive, unbiased
+            insights on the topics that matter most in our rapidly evolving world.
           </p>
         </div>
 
-        {/* How It Works */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">How Our AI Works</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4 p-3 bg-[#F5A353]/10 rounded-full w-fit">
-                  <Rss className="h-8 w-8 text-[#F5A353]" />
-                </div>
-                <CardTitle className="text-[#F5A353]">Data Collection</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Our AI continuously monitors multiple news sources, gathering the latest information across various
-                  industries and topics.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4 p-3 bg-[#F5A353]/10 rounded-full w-fit">
-                  <Bot className="h-8 w-8 text-[#F5A353]" />
-                </div>
-                <CardTitle className="text-[#F5A353]">AI Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Using Groq AI, we analyze and summarize complex information, identifying key trends and insights that
-                  matter most.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4 p-3 bg-[#F5A353]/10 rounded-full w-fit">
-                  <Zap className="h-8 w-8 text-[#F5A353]" />
-                </div>
-                <CardTitle className="text-[#F5A353]">Content Generation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Our system generates comprehensive blog posts in MDX format, complete with proper formatting and
-                  structure.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4 p-3 bg-[#F5A353]/10 rounded-full w-fit">
-                  <GitBranch className="h-8 w-8 text-[#F5A353]" />
-                </div>
-                <CardTitle className="text-[#F5A353]">Auto Publishing</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Articles are automatically committed to our repository and published daily, ensuring fresh content
-                  every day.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Features */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Platform Features</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-6 w-6 text-[#F5A353]" />
-                  <CardTitle>Daily Automation</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Our cron jobs ensure new content is generated and published every day at scheduled intervals, keeping
-                  you updated with the latest developments without any manual intervention.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Search className="h-6 w-6 text-[#F5A353]" />
-                  <CardTitle>Smart Search</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Our search functionality automatically indexes new content as it's published, providing instant access
-                  to all articles with intelligent filtering and categorization.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <Bot className="h-6 w-6 text-[#F5A353]" />
-                  <CardTitle>AI-Powered Insights</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Every article is generated using advanced AI models that analyze trends, extract key information, and
-                  present it in an easily digestible format.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <GitBranch className="h-6 w-6 text-[#F5A353]" />
-                  <CardTitle>Version Control</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  All content is automatically versioned and stored in Git repositories, ensuring transparency, backup,
-                  and the ability to track content evolution over time.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Categories */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Content Categories</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4">
-                  <Image
-                    src="/images/business-mission-bro.svg"
-                    alt="Business"
-                    width={80}
-                    height={80}
-                    className="mx-auto"
-                  />
-                </div>
-                <CardTitle className="text-[#F5A353]">Business</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Market trends, corporate strategies, financial insights, and business innovation coverage.
-                </CardDescription>
-                <Badge variant="secondary" className="mt-3 bg-[#F5A353]/10 text-[#F5A353]">
-                  Daily Updates
-                </Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4">
-                  <Image
-                    src="/images/cool-robot-bro.svg"
-                    alt="AI Technology"
-                    width={80}
-                    height={80}
-                    className="mx-auto"
-                  />
-                </div>
-                <CardTitle className="text-[#F5A353]">Artificial Intelligence</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Latest AI breakthroughs, machine learning advances, and future technology predictions.
-                </CardDescription>
-                <Badge variant="secondary" className="mt-3 bg-[#F5A353]/10 text-[#F5A353]">
-                  Trending
-                </Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4">
-                  <Image src="/images/education-bro.svg" alt="Education" width={80} height={80} className="mx-auto" />
-                </div>
-                <CardTitle className="text-[#F5A353]">Education</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  EdTech innovations, learning methodologies, and educational technology developments.
-                </CardDescription>
-                <Badge variant="secondary" className="mt-3 bg-[#F5A353]/10 text-[#F5A353]">
-                  Growing
-                </Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="mx-auto mb-4">
-                  <Image src="/images/news-bro.svg" alt="Technology" width={80} height={80} className="mx-auto" />
-                </div>
-                <CardTitle className="text-[#F5A353]">Technology</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Tech industry news, software developments, hardware innovations, and digital transformation.
-                </CardDescription>
-                <Badge variant="secondary" className="mt-3 bg-[#F5A353]/10 text-[#F5A353]">
-                  Popular
-                </Badge>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Technology Stack */}
-        <section className="bg-white rounded-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">Built with Modern Technology</h2>
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div>
-              <h3 className="font-semibold text-lg mb-2 text-[#F5A353]">AI & Processing</h3>
-              <ul className="text-gray-600 space-y-1">
-                <li>Groq AI for content generation</li>
-                <li>Advanced NLP processing</li>
-                <li>Automated summarization</li>
-              </ul>
+        {/* Mission Section */}
+        <Card className="mb-12 bg-background border-border">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-[#F5A353]/10 rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 text-[#F5A353]" />
             </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-2 text-[#F5A353]">Frontend & UI</h3>
-              <ul className="text-gray-600 space-y-1">
-                <li>Next.js App Router</li>
-                <li>Tailwind CSS styling</li>
-                <li>MDX content rendering</li>
-              </ul>
+            <CardTitle className="text-2xl text-foreground">Our Mission</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <CardDescription className="text-lg leading-relaxed max-w-3xl mx-auto">
+              At AI News Hub, we believe that staying informed shouldn't be overwhelming. Our advanced AI systems
+              analyze thousands of news sources daily to bring you the most relevant, comprehensive, and unbiased
+              coverage of business, technology, education, and artificial intelligence trends.
+            </CardDescription>
+          </CardContent>
+        </Card>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <Card className="text-center bg-background border-border">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
+                <Bot className="h-6 w-6 text-[#F5A353]" />
+              </div>
+              <CardTitle className="text-foreground">AI-Powered Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Our sophisticated AI algorithms process multiple news sources to create comprehensive, well-researched
+                articles with unique insights you won't find elsewhere.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center bg-background border-border">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
+                <TrendingUp className="h-6 w-6 text-[#F5A353]" />
+              </div>
+              <CardTitle className="text-foreground">Real-Time Updates</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Stay ahead of the curve with daily automated content generation that captures the latest trends and
+                developments as they happen.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center bg-background border-border">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
+                <Users className="h-6 w-6 text-[#F5A353]" />
+              </div>
+              <CardTitle className="text-foreground">Expert Insights</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Get in-depth analysis and commentary on complex topics, making technical subjects accessible to
+                professionals and enthusiasts alike.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center bg-background border-border">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
+                <Zap className="h-6 w-6 text-[#F5A353]" />
+              </div>
+              <CardTitle className="text-foreground">Lightning Fast</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Our automated systems ensure you get the latest news analysis within hours of major developments,
+                keeping you informed in real-time.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center bg-background border-border">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
+                <Globe className="h-6 w-6 text-[#F5A353]" />
+              </div>
+              <CardTitle className="text-foreground">Global Perspective</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                We aggregate news from trusted sources worldwide to provide a comprehensive, balanced view of global
+                developments and trends.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center bg-background border-border">
+            <CardHeader>
+              <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
+                <Sparkles className="h-6 w-6 text-[#F5A353]" />
+              </div>
+              <CardTitle className="text-foreground">Unbiased Coverage</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Our AI systems are designed to minimize bias and present balanced perspectives, helping you form your
+                own informed opinions.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Technology Section */}
+        <Card className="bg-background border-border">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-foreground">Powered by Advanced Technology</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">AI & Machine Learning</h3>
+                <p className="text-muted-foreground mb-4">
+                  We leverage cutting-edge language models and machine learning algorithms to analyze, synthesize, and
+                  generate high-quality content from multiple news sources.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Automated Publishing</h3>
+                <p className="text-muted-foreground mb-4">
+                  Our fully automated pipeline ensures consistent, timely publication of articles with integrated
+                  version control and content management systems.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Quality Assurance</h3>
+                <p className="text-muted-foreground mb-4">
+                  Multiple AI models work together to fact-check, verify sources, and ensure the accuracy and
+                  reliability of every piece of content we publish.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Continuous Learning</h3>
+                <p className="text-muted-foreground mb-4">
+                  Our systems continuously improve through machine learning, adapting to new trends and user preferences
+                  to deliver increasingly relevant content.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-lg mb-2 text-[#F5A353]">Automation</h3>
-              <ul className="text-gray-600 space-y-1">
-                <li>Cron job scheduling</li>
-                <li>Git version control</li>
-                <li>Automated deployment</li>
-              </ul>
-            </div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
       </div>
 
       <Footer />

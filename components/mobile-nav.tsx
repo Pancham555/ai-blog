@@ -3,9 +3,10 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Bot, Home, BookOpen, Hash, Info, X } from "lucide-react"
+import { Menu, Bot, Home, BookOpen, Hash, Info } from "lucide-react"
 import Link from "next/link"
 import { SearchBar } from "@/components/search-bar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
@@ -18,7 +19,7 @@ export function MobileNav() {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[350px] font-mono">
+      <SheetContent side="left" className="w-[300px] sm:w-[350px] font-mono bg-background border-border">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -26,9 +27,7 @@ export function MobileNav() {
               <Bot className="h-6 w-6 text-[#F5A353]" />
               <span className="text-xl font-bold">AI News Hub</span>
             </Link>
-            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-              <X className="h-4 w-4" />
-            </Button>
+            <ThemeToggle />
           </div>
 
           {/* Search */}
@@ -40,7 +39,7 @@ export function MobileNav() {
           <nav className="flex-1 space-y-4">
             <Link
               href="/"
-              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-gray-100"
+              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-muted"
               onClick={() => setOpen(false)}
             >
               <Home className="h-5 w-5" />
@@ -49,7 +48,7 @@ export function MobileNav() {
 
             <Link
               href="/blog"
-              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-gray-100"
+              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-muted"
               onClick={() => setOpen(false)}
             >
               <BookOpen className="h-5 w-5" />
@@ -58,7 +57,7 @@ export function MobileNav() {
 
             <Link
               href="/tags"
-              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-gray-100"
+              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-muted"
               onClick={() => setOpen(false)}
             >
               <Hash className="h-5 w-5" />
@@ -67,7 +66,7 @@ export function MobileNav() {
 
             <Link
               href="/about"
-              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-gray-100"
+              className="flex items-center space-x-3 text-lg font-medium hover:text-[#F5A353] transition-colors p-3 rounded-lg hover:bg-muted"
               onClick={() => setOpen(false)}
             >
               <Info className="h-5 w-5" />
@@ -76,9 +75,9 @@ export function MobileNav() {
           </nav>
 
           {/* Footer */}
-          <div className="mt-auto pt-6 border-t">
-            <p className="text-sm text-gray-500 text-center">© {new Date().getFullYear()} AI News Hub</p>
-            <p className="text-xs text-gray-400 text-center mt-1">Powered by AI</p>
+          <div className="mt-auto pt-6 border-t border-border">
+            <p className="text-sm text-muted-foreground text-center">© {new Date().getFullYear()} AI News Hub</p>
+            <p className="text-xs text-muted-foreground text-center mt-1">Powered by AI</p>
           </div>
         </div>
       </SheetContent>

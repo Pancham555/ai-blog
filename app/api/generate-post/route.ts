@@ -6,7 +6,10 @@ import path from "path"
 import axios from "axios"
 
 export async function GET(request: NextRequest) {
-  const baseTopic = "Business and Artificial Intelligence News and Current Updates"
+  const { searchParams } = new URL(request.url)
+  const customTopic = searchParams.get("topic")
+
+  const baseTopic = customTopic || "Business and Artificial Intelligence News and Current Updates"
   const newsApiKey = process.env.NEWS_API_KEY
   const groqKey = process.env.GROQ_API_KEY
   const ghToken = process.env.GITHUB_TOKEN
@@ -23,6 +26,7 @@ export async function GET(request: NextRequest) {
   let articles: any[] = []
 
   try {
+    const searchQuery = customTopic ? encodeURIComponent(customTopic) : "business artificial intelligence"
     const headlinesUrl = `https://newsapi.org/v2/top-headlines?sources=${sources.join(
       ",",
     )}&pageSize=5&apiKey=${newsApiKey}`
@@ -39,7 +43,9 @@ export async function GET(request: NextRequest) {
   // 2. Fallback to 'everything' query if no headlines
   if (!articles.length) {
     try {
-      const query = encodeURIComponent("business artificial intelligence")
+      const query = customTopic
+        ? encodeURIComponent(customTopic)
+        : encodeURIComponent("business artificial intelligence")
       const everythingUrl = `https://newsapi.org/v2/everything?q=${query}&language=en&pageSize=5&sortBy=publishedAt&apiKey=${newsApiKey}`
       const { data } = await axios.get(everythingUrl)
       if (data.status === "ok" && Array.isArray(data.articles)) {
@@ -243,7 +249,7 @@ ${aiText}
     const { data: newCommit } = await octo.rest.git.createCommit({
       owner,
       repo,
-      message: `chore: add unified news article for ${dateObj.toISOString().slice(0, 10)}`,
+      message: `chore: add unified news article for ${dateObj.toISOString().slice(0, 10)}${customTopic ? ` - ${customTopic}` : ""}`,
       tree: treeData.sha,
       parents: [baseSha],
     })
@@ -262,15 +268,6 @@ ${aiText}
     category,
     description,
     heroImage,
+    topic: customTopic || baseTopic,
   })
 }
-
-/* export async function GET() {
-  return NextResponse.json({
-    message: "AI Blog Post Generator API",
-    endpoints: {
-      "POST /api/generate-post": "Generate a new blog post using AI with NewsAPI, free images, and GitHub integration",
-    },
-  })
-}
-*/

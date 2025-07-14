@@ -4,28 +4,18 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Share2, Check } from "lucide-react"
 
-interface ShareButtonProps {
-  url?: string
-  title?: string
-  className?: string
-}
-
-export function ShareButton({ url, title, className }: ShareButtonProps) {
+export function ShareButton() {
   const [copied, setCopied] = useState(false)
 
   const handleShare = async () => {
-    const shareUrl = url || window.location.href
-    const shareTitle = title || document.title
-
     try {
-      await navigator.clipboard.writeText(shareUrl)
+      await navigator.clipboard.writeText(window.location.href)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error("Failed to copy URL:", err)
       // Fallback for older browsers
       const textArea = document.createElement("textarea")
-      textArea.value = shareUrl
+      textArea.value = window.location.href
       document.body.appendChild(textArea)
       textArea.select()
       document.execCommand("copy")
@@ -37,13 +27,14 @@ export function ShareButton({ url, title, className }: ShareButtonProps) {
 
   return (
     <Button
-      onClick={handleShare}
       variant="outline"
-      className={`border-[#F5A353] text-[#F5A353] hover:bg-[#F5A353] hover:text-white bg-transparent font-mono ${className}`}
+      size="sm"
+      onClick={handleShare}
+      className="font-mono border-border hover:bg-muted bg-transparent"
     >
       {copied ? (
         <>
-          <Check className="mr-2 h-4 w-4" />
+          <Check className="mr-2 h-4 w-4 text-green-500" />
           Copied!
         </>
       ) : (
