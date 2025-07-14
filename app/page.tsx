@@ -1,19 +1,32 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Calendar, Bot, Sparkles, TrendingUp, Users } from "lucide-react"
 import Link from "next/link"
-import { SearchBar } from "@/components/search-bar"
+import Image from "next/image"
+import { Bot, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { getLatestPosts, getAllTags, getAllPosts } from "@/lib/blog"
 import { Footer } from "@/components/footer"
-import { getLatestPosts } from "@/lib/blog"
-import { MobileNav } from "@/components/mobile-nav"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { SearchWrapper } from "@/components/search-wrapper" // Import the SearchWrapper
+import { MobileNav } from "@/components/mobile-nav" // Import MobileNav
+import { ThemeToggle } from "@/components/theme-toggle" // Import ThemeToggle
 
 export default async function HomePage() {
   const latestPosts = await getLatestPosts(3)
+  const allTags = await getAllTags()
+  const allPosts = await getAllPosts() // Declare the getAllPosts variable
+
+  // Prepare search data for client components
+  const searchData = allPosts.map((post) => ({
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    category: post.category,
+    date: post.date,
+    tags: post.tags,
+  }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800 font-mono">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800 font-mono text-foreground">
       {/* Header */}
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -35,177 +48,112 @@ export default async function HomePage() {
             </div>
             <div className="flex items-center space-x-2">
               <div className="hidden md:block">
-                <SearchBar />
+                <SearchWrapper /> {/* Use SearchWrapper here */}
               </div>
               <ThemeToggle />
-              <MobileNav />
+              <MobileNav searchData={searchData} /> {/* Pass searchData to MobileNav */}
             </div>
           </nav>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
-          <div className="flex justify-center mb-6">
-            <div className="flex items-center space-x-2 bg-[#F5A353]/10 px-4 py-2 rounded-full">
-              <Sparkles className="h-5 w-5 text-[#F5A353]" />
-              <span className="text-sm font-medium text-[#F5A353]">AI-Powered News Generation</span>
-            </div>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6">
-            AI News <span className="text-[#F5A353]">Hub</span>
-          </h1>
-
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Stay ahead with daily AI-generated insights on business, technology, education, and artificial intelligence
-            trends. Powered by cutting-edge AI to deliver the most relevant news analysis.
+      <section className="relative py-20 md:py-32 text-center bg-gradient-to-r from-[#F5A353] to-[#E8944A] dark:from-gray-800 dark:to-gray-700 text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <Image
+            src="/images/news-bro.svg"
+            alt="AI News Background"
+            layout="fill"
+            objectFit="cover"
+            className="pointer-events-none"
+          />
+        </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">Your Daily Dose of AI-Generated News</h1>
+          <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
+            Stay ahead with the latest insights and trends, crafted by advanced artificial intelligence.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/blog">
-              <Button size="lg" className="bg-[#F5A353] hover:bg-[#E8944A] text-white font-mono">
-                Explore Articles
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/about">
-              <Button
-                variant="outline"
-                size="lg"
-                className="font-mono border-[#F5A353] text-[#F5A353] hover:bg-[#F5A353]/10 bg-transparent"
-              >
-                Learn More
-              </Button>
-            </Link>
-          </div>
+          <Link href="/blog">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="bg-white text-[#F5A353] hover:bg-gray-100 dark:bg-gray-900 dark:text-[#F5A353] dark:hover:bg-gray-800 transition-colors shadow-lg"
+            >
+              Explore Blog Posts <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 bg-background/50">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Why Choose AI News Hub?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Experience the future of news consumption with our AI-driven platform
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow bg-background border-border">
-              <CardHeader>
-                <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
-                  <Bot className="h-6 w-6 text-[#F5A353]" />
+      {/* Latest Posts Section */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">Latest Articles</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {latestPosts.map((post) => (
+            <Card
+              key={post.slug}
+              className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground border-border"
+            >
+              {post.heroImage && (
+                <Link href={`/blog/${post.slug}`}>
+                  <Image
+                    src={post.heroImage || "/placeholder.svg"}
+                    alt={post.title}
+                    width={400}
+                    height={225}
+                    className="w-full h-48 object-cover"
+                  />
+                </Link>
+              )}
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge variant="secondary" className="bg-[#F5A353]/10 text-[#F5A353]">
+                    {post.category}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">{post.date}</span>
                 </div>
-                <CardTitle className="text-foreground">AI-Generated Content</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Our advanced AI analyzes multiple news sources to create comprehensive, unbiased articles with unique
-                  insights.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow bg-background border-border">
-              <CardHeader>
-                <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
-                  <TrendingUp className="h-6 w-6 text-[#F5A353]" />
-                </div>
-                <CardTitle className="text-foreground">Real-Time Updates</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Stay current with daily automated content generation that captures the latest trends and developments.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center hover:shadow-lg transition-shadow bg-background border-border">
-              <CardHeader>
-                <div className="mx-auto w-12 h-12 bg-[#F5A353]/10 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="h-6 w-6 text-[#F5A353]" />
-                </div>
-                <CardTitle className="text-foreground">Expert Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Get in-depth analysis and commentary on complex topics, making technical subjects accessible to
-                  everyone.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Latest Articles */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Latest <span className="text-[#F5A353]">Insights</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover our most recent AI-generated articles covering the latest in technology and business
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {latestPosts.map((post) => (
-              <Card key={post.slug} className="hover:shadow-lg transition-shadow bg-background border-border">
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className="bg-[#F5A353]/10 text-[#F5A353]">
-                      {post.category}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {post.date}
-                    </span>
-                  </div>
-                  <CardTitle className="line-clamp-2 hover:text-[#F5A353] transition-colors">
-                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="line-clamp-3 mb-4">{post.excerpt}</CardDescription>
-                  <div className="flex items-center justify-between">
-                    <Link href={`/blog/${post.slug}`}>
-                      <Button variant="ghost" className="p-0 text-[#F5A353] hover:text-[#E8944A]">
-                        Read More
-                        <ArrowRight className="ml-1 h-4 w-4" />
-                      </Button>
+                <Link href={`/blog/${post.slug}`}>
+                  <h3 className="text-xl font-bold mb-2 hover:text-[#F5A353] transition-colors leading-tight">
+                    {post.title}
+                  </h3>
+                </Link>
+                <p className="text-muted-foreground text-sm line-clamp-3">{post.excerpt}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <Link key={tag} href={`/tags/${tag.toLowerCase()}`}>
+                      <Badge variant="outline" className="hover:bg-[#F5A353]/10 border-border">
+                        {tag}
+                      </Badge>
                     </Link>
-                    <div className="flex gap-1">
-                      {post.tags.slice(0, 2).map((tag) => (
-                        <Link key={tag} href={`/tags/${tag.toLowerCase()}`}>
-                          <Badge variant="outline" className="text-xs hover:bg-[#F5A353]/10">
-                            {tag}
-                          </Badge>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="text-center mt-12">
+          <Link href="/blog">
+            <Button variant="outline" className="border-[#F5A353] text-[#F5A353] hover:bg-[#F5A353]/10 bg-transparent">
+              View All Posts <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
 
-          <div className="text-center">
-            <Link href="/blog">
-              <Button
-                size="lg"
-                variant="outline"
-                className="font-mono border-[#F5A353] text-[#F5A353] hover:bg-[#F5A353]/10 bg-transparent"
+      {/* Popular Tags Section */}
+      <section className="container mx-auto px-4 py-16 bg-muted/30 dark:bg-muted/50 rounded-lg mb-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">Popular Tags</h2>
+        <div className="flex flex-wrap justify-center gap-3">
+          {allTags.map((tag) => (
+            <Link key={tag.name} href={`/tags/${tag.name.toLowerCase()}`}>
+              <Badge
+                variant="default"
+                className="px-4 py-2 text-base bg-[#F5A353] text-white hover:bg-[#E8944A] transition-colors cursor-pointer"
               >
-                View All Articles
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+                {tag.name} ({tag.count})
+              </Badge>
             </Link>
-          </div>
+          ))}
         </div>
       </section>
 

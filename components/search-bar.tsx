@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Search, X } from "lucide-react"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
+import { Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Link from "next/link"
 
 interface SearchResult {
   slug: string
@@ -16,113 +18,81 @@ interface SearchResult {
   date: string
 }
 
-export function SearchBar() {
-  const [isOpen, setIsOpen] = useState(false)
+interface SearchBarProps {
+  autoFocus?: boolean
+  searchData: SearchResult[] // Now receives data as a prop
+}
+
+export function SearchBar({ autoFocus = false, searchData }: SearchBarProps) {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [filteredResults, setFilteredResults] = useState<SearchResult[]>([])
+  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setIsOpen(true)
-      }
-      if (e.key === "Escape") {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [])
-
-  useEffect(() => {
-    if (query.length > 2) {
-      setIsLoading(true)
-      // Simulate search API call with mock data
-      setTimeout(() => {
-        const mockResults: SearchResult[] = [
-          {
-            slug: "ai-business-trends-2024",
-            title: "AI Business Trends Shaping 2024",
-            excerpt: "Explore the latest artificial intelligence trends transforming business operations...",
-            category: "Business",
-            date: "2024-01-15",
-          },
-          {
-            slug: "future-of-education-technology",
-            title: "The Future of Education Technology",
-            excerpt: "How AI and machine learning are revolutionizing educational experiences...",
-            category: "Education",
-            date: "2024-01-14",
-          },
-          {
-            slug: "emerging-ai-technologies-2024",
-            title: "Emerging AI Technologies Transforming Industries in 2024",
-            excerpt:
-              "An in-depth look at the latest artificial intelligence breakthroughs and their impact across various sectors, from healthcare to finance and beyond.",
-            category: "Technology",
-            date: "2024-01-13",
-          },
-        ].filter(
-          (post) =>
-            post.title.toLowerCase().includes(query.toLowerCase()) ||
-            post.excerpt.toLowerCase().includes(query.toLowerCase()),
-        )
-        setResults(mockResults)
-        setIsLoading(false)
-      }, 300)
+    if (query.length > 1) {
+      // Start filtering after 1 character
+      const lowerCaseQuery = query.toLowerCase()
+      const results = searchData.filter(
+        (post) =>
+          post.title.toLowerCase().includes(lowerCaseQuery) ||
+          post.excerpt.toLowerCase().includes(lowerCaseQuery) ||
+          post.category.toLowerCase().includes(lowerCaseQuery) ||
+          post.tags.some((tag) => tag.toLowerCase().includes(lowerCaseQuery)),
+      )
+      setFilteredResults(results)
+      setIsOpen(results.length > 0)
     } else {
-      setResults([])
+      setFilteredResults([])
+      setIsOpen(false)
     }
-  }, [query])
+  }, [query, searchData])
 
-  if (!isOpen) {
-    return (
-      <Button
-        variant="outline"
-        className="relative w-full md:w-64 justify-start text-sm text-muted-foreground bg-background border-border font-mono shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#F5A353]/50"
-        onClick={() => setIsOpen(true)}
-      >
-        <Search className="mr-2 h-4 w-4" />
-        <span className="hidden sm:inline">Search articles...</span>
-        <span className="sm:hidden">Search...</span>
-        <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 md:flex">
-          <span className="text-xs">⌘</span>K
-        </kbd>
-      </Button>
-    )
+  const handleSelect = (slug: string) => {
+    setIsOpen(false)
+    setQuery("")
+    router.push(`/blog/${slug}`)
+    if (inputRef.current) {
+      inputRef.current.blur() // Remove focus from input after selection
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setIsOpen(false)
+      if (inputRef.current) {
+        inputRef.current.blur()
+      }
+    }
   }
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/50 dark:bg-black/70 flex items-start justify-center pt-20 px-4">
-      <Card className="w-full max-w-2xl bg-background border-border shadow-2xl">
-        <CardContent className="p-0">
-          <div className="flex items-center border-b border-border px-4">
-            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search articles..."
-              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 font-mono bg-transparent"
-              autoFocus
-            />
-            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+    <div className="relative w-full">
+      <div className="flex items-center">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          ref={inputRef}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => query.length > 1 && filteredResults.length > 0 && setIsOpen(true)}
+          onBlur={() => setTimeout(() => setIsOpen(false), 100)} // Delay to allow click on results
+          onKeyDown={handleKeyDown}
+          placeholder="Search articles..."
+          className="pl-10 bg-background border-border font-mono shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#F5A353]/50"
+          autoFocus={autoFocus}
+        />
+      </div>
 
-          {isLoading && <div className="p-4 text-center text-sm text-muted-foreground font-mono">Searching...</div>}
-
-          {results.length > 0 && (
-            <div className="max-h-96 overflow-y-auto">
-              {results.map((result) => (
-                <Link
+      {isOpen && filteredResults.length > 0 && (
+        <Card className="absolute z-50 mt-1 w-full shadow-lg bg-background border-border">
+          <CardContent className="p-0">
+            <ul className="max-h-64 overflow-auto">
+              {filteredResults.map((result) => (
+                <li
                   key={result.slug}
-                  href={`/blog/${result.slug}`}
-                  onClick={() => setIsOpen(false)}
-                  className="block p-4 hover:bg-muted border-b border-border last:border-b-0 transition-colors"
+                  className={cn("cursor-pointer px-4 py-2 hover:bg-muted transition-colors")}
+                  onMouseDown={() => handleSelect(result.slug)} // Use onMouseDown to trigger before onBlur
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Badge variant="secondary" className="bg-[#F5A353]/10 text-[#F5A353] font-mono">
@@ -131,25 +101,21 @@ export function SearchBar() {
                     <span className="text-xs text-muted-foreground font-mono">{result.date}</span>
                   </div>
                   <h3 className="font-medium text-sm mb-1 font-mono">{result.title}</h3>
-                  <p className="text-xs text-muted-foreground line-clamp-2 font-mono">{result.excerpt}</p>
-                </Link>
+                  <p className="text-xs text-muted-foreground line-clamp-1 font-mono">{result.excerpt}</p>
+                </li>
               ))}
-            </div>
-          )}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
-          {query.length > 2 && results.length === 0 && !isLoading && (
-            <div className="p-4 text-center text-sm text-muted-foreground font-mono">
-              No results found for "{query}"
-            </div>
-          )}
-
-          {query.length <= 2 && (
-            <div className="p-4 text-center text-sm text-muted-foreground font-mono">
-              Type at least 3 characters to search
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {isOpen && query.length > 1 && filteredResults.length === 0 && (
+        <Card className="absolute z-50 mt-1 w-full shadow-lg bg-background border-border">
+          <CardContent className="p-4 text-center text-sm text-muted-foreground font-mono">
+            No results found for "{query}"
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
