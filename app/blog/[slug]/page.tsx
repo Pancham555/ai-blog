@@ -31,7 +31,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800 font-mono">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-900 dark:to-gray-800 font-mono text-foreground">
       {/* Header */}
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -140,6 +140,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono">{children}</code>
               ),
               pre: ({ children }) => <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4">{children}</pre>,
+              img: ({ node, ...props }) => {
+                // Suppress images from markdown content if a heroImage is already present
+                if (post.heroImage) {
+                  return null
+                }
+                // Otherwise, render the image normally
+                return <img {...props} className="max-w-full h-auto rounded-lg my-4" />
+              },
             }}
           >
             {post.content}

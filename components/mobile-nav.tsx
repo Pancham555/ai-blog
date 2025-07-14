@@ -1,99 +1,59 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, Bot, Home, BookOpen, Hash, Info } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
+import { Menu, Bot } from "lucide-react"
 import { SearchBar } from "@/components/search-bar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function MobileNav() {
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle menu</span>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-6 w-6" />
+          <span className="sr-only">Toggle navigation menu</span>
         </Button>
       </SheetTrigger>
-
-      <SheetContent side="left" className="w-[300px] sm:w-[350px] flex flex-col font-mono bg-background">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="flex items-center space-x-2" onClick={() => setOpen(false)}>
-            <Bot className="h-6 w-6 text-[#F5A353]" />
-            <span className="text-xl font-bold">AI News Hub</span>
+      <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col bg-background text-foreground">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+            <Bot className="h-8 w-8 text-[#F5A353]" />
+            <span className="text-2xl font-bold text-foreground">AI News Hub</span>
           </Link>
           <ThemeToggle />
         </div>
-
-        {/* Search */}
-        <div className="mb-6">
-          <SearchBar autoFocus />
-        </div>
-
-        {/* Nav Links */}
-        <nav className="flex-1 space-y-4">
-          <NavLink href="/" onClick={() => setOpen(false)}>
-            <Home className="h-5 w-5" />
-            Home
-          </NavLink>
-          <NavLink href="/blog" onClick={() => setOpen(false)}>
-            <BookOpen className="h-5 w-5" />
+        <nav className="flex flex-col gap-4 p-4 flex-grow">
+          <Link
+            href="/blog"
+            className="text-muted-foreground hover:text-[#F5A353] transition-colors text-lg font-medium"
+            onClick={() => setIsOpen(false)}
+          >
             Blog
-          </NavLink>
-          <NavLink href="/tags" onClick={() => setOpen(false)}>
-            <Hash className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/tags"
+            className="text-muted-foreground hover:text-[#F5A353] transition-colors text-lg font-medium"
+            onClick={() => setIsOpen(false)}
+          >
             Tags
-          </NavLink>
-          <NavLink href="/about" onClick={() => setOpen(false)}>
-            <Info className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/about"
+            className="text-muted-foreground hover:text-[#F5A353] transition-colors text-lg font-medium"
+            onClick={() => setIsOpen(false)}
+          >
             About
-          </NavLink>
+          </Link>
+          <div className="mt-auto pt-4 border-t border-border">
+            <SearchBar />
+          </div>
         </nav>
-
-        {/* Footer */}
-        <footer className="mt-auto pt-6 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} AI News Hub</p>
-          <p className="text-xs text-muted-foreground mt-1">Powered by AI</p>
-        </footer>
-
-        {/* Close button */}
-        <SheetTrigger asChild className="absolute right-4 top-4">
-          <Button variant="ghost" size="icon" aria-label="Close menu">
-            <X className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
       </SheetContent>
     </Sheet>
   )
 }
-
-function NavLink({
-  href,
-  children,
-  onClick,
-}: {
-  href: string
-  children: React.ReactNode
-  onClick?: () => void
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className="flex items-center space-x-3 text-lg font-medium rounded-lg p-3 transition-colors hover:bg-muted hover:text-[#F5A353]"
-    >
-      {children}
-    </Link>
-  )
-}
-
-/*  also export default so both `import MobileNav` and
-    `import { MobileNav }` work without changes elsewhere */
-export default MobileNav
