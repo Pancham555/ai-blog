@@ -5,7 +5,7 @@ import fs from "fs"
 import path from "path"
 import axios from "axios"
 
-export default async function handler(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const baseTopic = "Business and Artificial Intelligence News and Current Updates"
   const newsApiKey = process.env.NEWS_API_KEY
   const groqKey = process.env.GROQ_API_KEY
