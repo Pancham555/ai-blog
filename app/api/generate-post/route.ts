@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   const ghToken = process.env.GITHUB_TOKEN
   const owner = process.env.GITHUB_OWNER || "your-username"
   const repo = process.env.GITHUB_REPO || "ai-news-website"
-  const branch = "main"
+  const branch = "master"
 
   if (!newsApiKey || !groqKey || !ghToken) {
     return NextResponse.json({ error: "Required API keys are not set" }, { status: 500 })
