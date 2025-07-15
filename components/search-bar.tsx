@@ -16,14 +16,16 @@ interface SearchResult {
   excerpt: string
   category: string
   date: string
+  tags: string[]
 }
 
 interface SearchBarProps {
   autoFocus?: boolean
-  searchData: SearchResult[] // Now receives data as a prop
+  searchData: SearchResult[]
+  onResultSelect?: () => void // Callback for when a result is selected (useful for mobile nav)
 }
 
-export function SearchBar({ autoFocus = false, searchData }: SearchBarProps) {
+export function SearchBar({ autoFocus = false, searchData, onResultSelect }: SearchBarProps) {
   const [query, setQuery] = useState("")
   const [filteredResults, setFilteredResults] = useState<SearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -55,6 +57,10 @@ export function SearchBar({ autoFocus = false, searchData }: SearchBarProps) {
     router.push(`/blog/${slug}`)
     if (inputRef.current) {
       inputRef.current.blur() // Remove focus from input after selection
+    }
+    // Call the callback if provided (useful for closing mobile nav)
+    if (onResultSelect) {
+      onResultSelect()
     }
   }
 
@@ -118,4 +124,5 @@ export function SearchBar({ autoFocus = false, searchData }: SearchBarProps) {
       )}
     </div>
   )
+}
 }

@@ -6,8 +6,20 @@ import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import ThemeToggle from "@/components/theme-toggle"
+import { SearchBar } from "@/components/search-bar"
 
-export function MobileNav() {
+interface MobileNavProps {
+  searchData?: Array<{
+    slug: string
+    title: string
+    excerpt: string
+    category: string
+    date: string
+    tags: string[]
+  }>
+}
+
+export function MobileNav({ searchData = [] }: MobileNavProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -25,6 +37,14 @@ export function MobileNav() {
             <X className="h-5 w-5" />
           </Button>
         </header>
+
+        {/* Search Bar */}
+        <div className="w-full">
+          <SearchBar 
+            searchData={searchData} 
+            onResultSelect={() => setOpen(false)} // Close mobile nav when search result is selected
+          />
+        </div>
 
         <nav className="flex flex-col gap-4">
           <Link href="/" onClick={() => setOpen(false)}>
