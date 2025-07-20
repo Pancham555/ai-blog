@@ -2,16 +2,20 @@ import fs from "fs"
 import path from "path"
 import matter from "gray-matter"
 
+const postsDirectory = path.join(process.cwd(), "blog")
+
 export interface BlogPost {
   slug: string
   title: string
+  date: string
   excerpt: string
   content: string
-  date: string
   category: string
   tags: string[]
-  readTime: number
   heroImage?: string
+  featured?: boolean
+  breaking?: boolean
+  priority?: number
 }
 
 export interface Tag {
@@ -19,223 +23,115 @@ export interface Tag {
   count: number
 }
 
-const blogDirectory = path.join(process.cwd(), "blog")
+/**
+ * Return all Dirent objects inside /blog and keep only regular files ending in `.mdx`.
+ */
+function getBlogFiles(): fs.Dirent[] {
+  return fs
+    .readdirSync(postsDirectory, { withFileTypes: true })
+    .filter((dirent) => dirent.isFile() && dirent.name.endsWith(".mdx"))
+}
 
 export async function getAllPosts(): Promise<BlogPost[]> {
+  const dirents = getBlogFiles()
+
+  const allPostsData = dirents.map((dirent) => {
+    const fileName = dirent.name
+    const slug = fileName.replace(/\.mdx$/, "")
+    const fullPath = path.join(postsDirectory, fileName)
+    const fileContents = fs.readFileSync(fullPath, "utf8")
+    const { data, content } = matter(fileContents)
+
+    return {
+      slug,
+      title: data.title ?? "Untitled",
+      date: data.date ?? new Date().toISOString().split("T")[0],
+      excerpt: data.excerpt ?? "",
+      content,
+      category: data.category ?? "General",
+      tags: data.tags ?? [],
+      heroImage: data.heroImage,
+      featured: data.featured ?? false,
+      breaking: data.breaking ?? false,
+      priority: data.priority ?? 0,
+    } as BlogPost
+  })
+
+  // Newest first
+  return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1))
+}
+
+/* --- remaining helper functions (unchanged) --- */
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
-    // Check if blog directory exists
-    if (!fs.existsSync(blogDirectory)) {
-      console.warn("Blog directory does not exist, returning mock data")
-      return getMockPosts()
-    }
-
-    const fileNames = fs.readdirSync(blogDirectory)
-    const posts: BlogPost[] = []
-
-    for (const fileName of fileNames) {
-      if (fileName.endsWith(".mdx") || fileName.endsWith(".md")) {
-        try {
-          const fullPath = path.join(blogDirectory, fileName)
-          const fileContents = fs.readFileSync(fullPath, "utf8")
-          const { data, content } = matter(fileContents)
-
-          const slug = fileName.replace(/\.(mdx|md)$/, "")
-
-          posts.push({
-            slug: data.slug || slug,
-            title: data.title || "Untitled",
-            excerpt: data.description || content.slice(0, 200) + "...",
-            content,
-            date: data.date || new Date().toISOString().split("T")[0],
-            category: data.category || "Technology",
-            tags: data.tags || [],
-            readTime: data.readTime || Math.ceil(content.split(" ").length / 200),
-            heroImage: data.heroImage,
-          })
-        } catch (error) {
-          console.error(`Error processing file ${fileName}:`, error)
-        }
-      }
-    }
-
-    // If no posts found, return mock data
-    if (posts.length === 0) {
-      return getMockPosts()
-    }
-
-    return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  } catch (error) {
-    console.error("Error reading blog directory:", error)
-    return getMockPosts()
+    const fullPath = path.join(postsDirectory, `${slug}.mdx`)
+    const fileContents = fs.readFileSync(fullPath, "utf8")
+    const { data, content } = matter(fileContents)
+    return {
+      slug,
+      title: data.title ?? "Untitled",
+      date: data.date ?? new Date().toISOString().split("T")[0],
+      excerpt: data.excerpt ?? "",
+      content,
+      category: data.category ?? "General",
+      tags: data.tags ?? [],
+      heroImage: data.heroImage,
+      featured: data.featured ?? false,
+      breaking: data.breaking ?? false,
+      priority: data.priority ?? 0,
+    } as BlogPost
+  } catch {
+    return null
   }
 }
 
-function getMockPosts(): BlogPost[] {
-  return [
-    {
-      slug: "ai-business-trends-2024",
-      title: "AI Business Trends Shaping 2024: A Comprehensive Analysis",
-      excerpt:
-        "Explore how artificial intelligence is transforming business operations, from automation to decision-making processes, and what companies need to know to stay competitive.",
-      content: `# AI Business Trends Shaping 2024
-
-The business landscape is undergoing a revolutionary transformation driven by artificial intelligence. As we progress through 2024, companies across industries are discovering new ways to leverage AI technologies to enhance productivity, improve customer experiences, and drive innovation.
-
-## Key Trends in AI Business Applications
-
-### 1. Automated Decision Making
-Businesses are increasingly relying on AI systems to make complex decisions in real-time. From supply chain optimization to pricing strategies, AI algorithms are processing vast amounts of data to provide actionable insights.
-
-### 2. Enhanced Customer Experience
-AI-powered chatbots and virtual assistants are becoming more sophisticated, providing personalized customer service experiences that rival human interaction.
-
-### 3. Predictive Analytics
-Companies are using machine learning models to forecast market trends, customer behavior, and operational needs with unprecedented accuracy.
-
-## Implementation Challenges
-
-While the benefits are clear, businesses face several challenges when implementing AI solutions:
-
-- **Data Quality**: Ensuring clean, relevant data for training AI models
-- **Integration**: Seamlessly incorporating AI into existing workflows
-- **Skills Gap**: Finding talent with the necessary AI expertise
-- **Ethical Considerations**: Addressing bias and transparency in AI systems
-
-## Looking Forward
-
-The future of AI in business looks promising, with emerging technologies like generative AI and advanced natural language processing opening new possibilities for innovation and growth.`,
-      date: "2024-01-15",
-      category: "Business",
-      tags: ["AI", "Business", "Trends", "Technology"],
-      readTime: 5,
-      heroImage: "/placeholder.svg?height=400&width=800",
-    },
-    {
-      slug: "future-of-education-technology",
-      title: "The Future of Education Technology: AI-Driven Learning Revolution",
-      excerpt:
-        "Discover how artificial intelligence and machine learning are revolutionizing educational experiences, from personalized learning paths to intelligent tutoring systems.",
-      content: `# The Future of Education Technology
-
-Education technology is experiencing a paradigm shift as artificial intelligence becomes increasingly integrated into learning environments. This transformation is creating unprecedented opportunities for personalized, efficient, and accessible education.
-
-## AI-Powered Learning Innovations
-
-### Personalized Learning Paths
-AI algorithms analyze individual learning patterns to create customized educational experiences tailored to each student's needs, pace, and learning style.
-
-### Intelligent Tutoring Systems
-Advanced AI tutors provide 24/7 support, offering explanations, answering questions, and adapting their teaching methods based on student responses.
-
-### Automated Assessment
-Machine learning models can evaluate student work, provide instant feedback, and identify areas where additional support is needed.
-
-## Benefits for Educators and Students
-
-- **Enhanced Engagement**: Interactive AI tools make learning more engaging and interactive
-- **Improved Outcomes**: Personalized approaches lead to better learning results
-- **Accessibility**: AI breaks down barriers for students with different learning needs
-- **Efficiency**: Automated tasks free up educators to focus on high-value activities
-
-## Challenges and Considerations
-
-The integration of AI in education also presents challenges that must be addressed:
-
-- **Privacy Concerns**: Protecting student data and ensuring ethical use of information
-- **Digital Divide**: Ensuring equitable access to AI-powered educational tools
-- **Teacher Training**: Preparing educators to effectively use AI technologies
-
-## The Road Ahead
-
-As AI technology continues to evolve, we can expect even more innovative applications in education, from virtual reality learning environments to AI-generated educational content.`,
-      date: "2024-01-14",
-      category: "Education",
-      tags: ["Education", "AI", "Technology", "Learning"],
-      readTime: 4,
-      heroImage: "/placeholder.svg?height=400&width=800",
-    },
-    {
-      slug: "emerging-ai-technologies-2024",
-      title: "Emerging AI Technologies Transforming Industries in 2024",
-      excerpt:
-        "An in-depth look at the latest artificial intelligence breakthroughs and their impact across various sectors, from healthcare to finance and beyond.",
-      content: `# Emerging AI Technologies Transforming Industries
-
-The artificial intelligence landscape is evolving at breakneck speed, with new technologies emerging that promise to reshape entire industries. As we navigate through 2024, several key AI innovations are standing out as game-changers.
-
-## Breakthrough Technologies
-
-### Generative AI Evolution
-Large language models and generative AI systems have reached new levels of sophistication, enabling more natural human-AI interactions and creative applications.
-
-### Multimodal AI Systems
-AI that can process and understand multiple types of data simultaneously - text, images, audio, and video - is opening new possibilities for comprehensive analysis.
-
-### Edge AI Computing
-AI processing is moving closer to data sources, enabling real-time decision-making with reduced latency and improved privacy.
-
-## Industry Applications
-
-### Healthcare
-- **Diagnostic Assistance**: AI systems helping doctors identify diseases earlier and more accurately
-- **Drug Discovery**: Machine learning accelerating the development of new medications
-- **Personalized Treatment**: AI-driven treatment plans tailored to individual patients
-
-### Finance
-- **Fraud Detection**: Advanced algorithms identifying suspicious transactions in real-time
-- **Algorithmic Trading**: AI systems making split-second investment decisions
-- **Risk Assessment**: Machine learning models evaluating credit and investment risks
-
-### Manufacturing
-- **Predictive Maintenance**: AI predicting equipment failures before they occur
-- **Quality Control**: Computer vision systems detecting defects with superhuman accuracy
-- **Supply Chain Optimization**: AI managing complex global supply networks
-
-## Future Implications
-
-The continued advancement of AI technologies will likely lead to:
-
-- More autonomous systems across industries
-- Enhanced human-AI collaboration
-- New job categories and skill requirements
-- Increased focus on AI ethics and governance
-
-As these technologies mature, organizations must prepare for a future where AI is not just a tool, but a fundamental component of business operations.`,
-      date: "2024-01-13",
-      category: "Technology",
-      tags: ["AI", "Technology", "Innovation", "Industry"],
-      readTime: 6,
-      heroImage: "/placeholder.svg?height=400&width=800",
-    },
-  ]
+export async function getLatestPosts(limit = 10) {
+  const all = await getAllPosts()
+  return all.slice(0, limit)
 }
-
-export async function getLatestPosts(limit: number): Promise<BlogPost[]> {
-  const posts = await getAllPosts()
-  return posts.slice(0, limit)
+export async function getFeaturedPosts(limit = 3) {
+  const all = await getAllPosts()
+  const featured = all.filter((p) => p.featured)
+  if (featured.length < limit) return all.slice(0, limit)
+  return featured.slice(0, limit)
 }
-
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const posts = await getAllPosts()
-  return posts.find((post) => post.slug === slug) || null
+export async function getBreakingNews(limit = 2) {
+  const all = await getAllPosts()
+  const breaking = all.filter((p) => p.breaking)
+  if (breaking.length === 0) return all.slice(0, limit)
+  return breaking.slice(0, limit)
 }
-
-export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
-  const posts = await getAllPosts()
-  return posts.filter((post) => post.tags.some((postTag) => postTag.toLowerCase() === tag.toLowerCase()))
+export async function getRecentUpdates(limit = 4) {
+  const all = await getAllPosts()
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const recent = all.filter((p) => new Date(p.date) >= sevenDaysAgo)
+  return (recent.length ? recent : all).slice(0, limit)
 }
-
+export async function getPostsByTag(tag: string) {
+  const all = await getAllPosts()
+  return all.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()))
+}
 export async function getAllTags(): Promise<Tag[]> {
-  const posts = await getAllPosts()
-  const tagCounts: { [key: string]: number } = {}
-
-  posts.forEach((post) => {
-    post.tags.forEach((tag) => {
-      tagCounts[tag] = (tagCounts[tag] || 0) + 1
-    })
-  })
-
-  return Object.entries(tagCounts)
+  const all = await getAllPosts()
+  const counts: Record<string, number> = {}
+  all.forEach((p) => p.tags.forEach((t) => (counts[t] = (counts[t] ?? 0) + 1)))
+  return Object.entries(counts)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
+}
+export async function getPostsByCategory(category: string) {
+  const all = await getAllPosts()
+  return all.filter((p) => p.category.toLowerCase() === category.toLowerCase())
+}
+export async function searchPosts(query: string) {
+  const all = await getAllPosts()
+  const q = query.toLowerCase()
+  return all.filter(
+    (p) =>
+      p.title.toLowerCase().includes(q) ||
+      p.excerpt.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.tags.some((t) => t.toLowerCase().includes(q)),
+  )
 }

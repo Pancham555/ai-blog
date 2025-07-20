@@ -1,19 +1,30 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Bot, ArrowRight } from "lucide-react"
+import { Bot, ArrowRight, Zap, Clock, Star, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { getLatestPosts, getAllTags, getAllPosts } from "@/lib/blog"
+import { Separator } from "@/components/ui/separator"
+import {
+  getLatestPosts,
+  getAllTags,
+  getAllPosts,
+  getFeaturedPosts,
+  getBreakingNews,
+  getRecentUpdates,
+} from "@/lib/blog"
 import { Footer } from "@/components/footer"
-import { SearchWrapper } from "@/components/search-wrapper" // Import the SearchWrapper
-import { MobileNav } from "@/components/mobile-nav" // Import MobileNav
-import { ThemeToggle } from "@/components/theme-toggle" // Import ThemeToggle
+import { SearchWrapper } from "@/components/search-wrapper"
+import { MobileNav } from "@/components/mobile-nav"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default async function HomePage() {
   const latestPosts = await getLatestPosts(3)
+  const featuredPosts = await getFeaturedPosts(3)
+  const breakingNews = await getBreakingNews(2)
+  const recentUpdates = await getRecentUpdates(4)
   const allTags = await getAllTags()
-  const allPosts = await getAllPosts() // Declare the getAllPosts variable
+  const allPosts = await getAllPosts()
 
   // Prepare search data for client components
   const searchData = allPosts.map((post) => ({
@@ -48,10 +59,10 @@ export default async function HomePage() {
             </div>
             <div className="flex items-center space-x-2">
               <div className="hidden md:block">
-                <SearchWrapper /> {/* Use SearchWrapper here */}
+                <SearchWrapper />
               </div>
               <ThemeToggle />
-              <MobileNav searchData={searchData} /> {/* Pass searchData to MobileNav */}
+              <MobileNav searchData={searchData} />
             </div>
           </nav>
         </div>
@@ -85,9 +96,109 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Latest Posts Section */}
+      {/* Breaking News Section */}
+      <section className="bg-red-50 dark:bg-red-950/20 border-l-4 border-red-500">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Zap className="h-6 w-6 text-red-500" />
+            <h2 className="text-2xl font-bold text-red-700 dark:text-red-400">Breaking News</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {breakingNews.map((post) => (
+              <Card key={post.slug} className="border-red-200 dark:border-red-800 hover:shadow-lg transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="destructive" className="bg-red-500">
+                      BREAKING
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">{post.date}</span>
+                  </div>
+                  <Link href={`/blog/${post.slug}`}>
+                    <h3 className="text-lg font-bold mb-2 hover:text-red-600 dark:hover:text-red-400 transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Articles Section */}
       <section className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">Latest Articles</h2>
+        <div className="flex items-center gap-3 mb-12">
+          <Star className="h-8 w-8 text-[#F5A353]" />
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Featured Articles</h2>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {featuredPosts.map((post, index) => (
+            <Card
+              key={post.slug}
+              className={`overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card text-card-foreground border-border ${
+                index === 0 ? "lg:col-span-2 lg:row-span-2" : ""
+              }`}
+            >
+              {post.heroImage && (
+                <Link href={`/blog/${post.slug}`}>
+                  <Image
+                    src={post.heroImage || "/placeholder.svg"}
+                    alt={post.title}
+                    width={index === 0 ? 800 : 400}
+                    height={index === 0 ? 450 : 225}
+                    className={`w-full object-cover ${index === 0 ? "h-64 lg:h-80" : "h-48"}`}
+                  />
+                </Link>
+              )}
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge variant="secondary" className="bg-[#F5A353]/10 text-[#F5A353]">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                  <Badge variant="outline" className="bg-secondary/50">
+                    {post.category}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">{post.date}</span>
+                </div>
+                <Link href={`/blog/${post.slug}`}>
+                  <h3
+                    className={`font-bold mb-2 hover:text-[#F5A353] transition-colors leading-tight ${
+                      index === 0 ? "text-2xl lg:text-3xl" : "text-xl"
+                    }`}
+                  >
+                    {post.title}
+                  </h3>
+                </Link>
+                <p
+                  className={`text-muted-foreground ${index === 0 ? "text-base line-clamp-4" : "text-sm line-clamp-3"}`}
+                >
+                  {post.excerpt}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.slice(0, 3).map((tag) => (
+                    <Link key={tag} href={`/tags/${tag.toLowerCase()}`}>
+                      <Badge variant="outline" className="hover:bg-[#F5A353]/10 border-border text-xs">
+                        {tag}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <Separator className="container mx-auto" />
+
+      {/* Latest Articles Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="flex items-center gap-3 mb-12">
+          <TrendingUp className="h-8 w-8 text-[#F5A353]" />
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Latest Articles</h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {latestPosts.map((post) => (
             <Card
@@ -139,6 +250,53 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      <Separator className="container mx-auto" />
+
+      {/* Recent Updates Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="flex items-center gap-3 mb-12">
+          <Clock className="h-8 w-8 text-[#F5A353]" />
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Recent Updates</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {recentUpdates.map((post) => (
+            <Card key={post.slug} className="hover:shadow-lg transition-shadow bg-card text-card-foreground">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  {post.heroImage && (
+                    <Link href={`/blog/${post.slug}`}>
+                      <Image
+                        src={post.heroImage || "/placeholder.svg"}
+                        alt={post.title}
+                        width={120}
+                        height={80}
+                        className="w-24 h-16 object-cover rounded flex-shrink-0"
+                      />
+                    </Link>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" className="text-xs">
+                        {post.category}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{post.date}</span>
+                    </div>
+                    <Link href={`/blog/${post.slug}`}>
+                      <h3 className="text-lg font-semibold mb-2 hover:text-[#F5A353] transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <Separator className="container mx-auto" />
 
       {/* Popular Tags Section */}
       <section className="container mx-auto px-4 py-16 bg-muted/30 dark:bg-muted/50 rounded-lg mb-16">

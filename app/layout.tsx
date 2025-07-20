@@ -17,11 +17,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Vercel" }],
   creator: "Vercel",
   publisher: "Vercel",
-  metadataBase: new URL("https://ai-news-hub.vercel.app"), // Replace with your actual domain
+  metadataBase: new URL("https://biz-news.vercel.app"), // Replace with your actual domain
   openGraph: {
     title: "AI News Hub",
     description: "Your daily dose of AI-generated news and insights.",
-    url: "https://ai-news-hub.vercel.app",
+    url: "https://biz-news.vercel.app",
     siteName: "AI News Hub",
     images: [
       {

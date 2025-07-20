@@ -2,68 +2,87 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X } from "lucide-react"
+import { Menu, Bot, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import ThemeToggle from "@/components/theme-toggle"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { SearchBar } from "@/components/search-bar"
+import { Separator } from "@/components/ui/separator"
+import ThemeToggle from "@/components/theme-toggle" // Ensure ThemeToggle is imported
+
+interface SearchData {
+  slug: string
+  title: string
+  excerpt: string
+  category: string
+  date: string
+  tags?: string[]
+}
 
 interface MobileNavProps {
-  searchData?: Array<{
-    slug: string
-    title: string
-    excerpt: string
-    category: string
-    date: string
-    tags: string[]
-  }>
+  searchData?: SearchData[]
 }
 
 export function MobileNav({ searchData = [] }: MobileNavProps) {
-  const [open, setOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const closeSheet = () => setIsOpen(false)
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Open menu" className="md:hidden">
-          <Menu className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-6 w-6" />
+          <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
+      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+        <SheetHeader>
+          <SheetTitle className="flex items-center space-x-2">
+            <Bot className="h-6 w-6 text-[#F5A353]" />
+            <span>AI News Hub</span>
+          </SheetTitle>
+        </SheetHeader>
 
-      <SheetContent side="left" className="flex flex-col gap-6 pt-8">
-        <header className="flex items-center justify-between">
-          <span className="text-lg font-semibold">AI News Hub</span>
-          <Button variant="ghost" size="icon" aria-label="Close menu" onClick={() => setOpen(false)}>
-            <X className="h-5 w-5" />
-          </Button>
-        </header>
-
-        {/* Search Bar */}
-        <div className="w-full">
-          <SearchBar 
-            searchData={searchData} 
-            onResultSelect={() => setOpen(false)} // Close mobile nav when search result is selected
-          />
+        {/* Search Section */}
+        <div className="mt-6">
+          <div className="flex items-center space-x-2 mb-3">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Search Articles</span>
+          </div>
+          <SearchBar searchData={searchData} /> {/* Pass searchData to SearchBar */}
         </div>
 
-        <nav className="flex flex-col gap-4">
-          <Link href="/" onClick={() => setOpen(false)}>
-            Home
-          </Link>
-          <Link href="/blog" onClick={() => setOpen(false)}>
+        <Separator className="my-6" />
+
+        {/* Navigation Links */}
+        <nav className="flex flex-col space-y-4">
+          <Link
+            href="/blog"
+            className="text-lg font-medium hover:text-[#F5A353] transition-colors"
+            onClick={closeSheet}
+          >
             Blog
           </Link>
-          <Link href="/about" onClick={() => setOpen(false)}>
+          <Link
+            href="/tags"
+            className="text-lg font-medium hover:text-[#F5A353] transition-colors"
+            onClick={closeSheet}
+          >
+            Tags
+          </Link>
+          <Link
+            href="/about"
+            className="text-lg font-medium hover:text-[#F5A353] transition-colors"
+            onClick={closeSheet}
+          >
             About
           </Link>
         </nav>
 
-        <div className="mt-auto">
+        <div className="mt-auto pt-6">
           <ThemeToggle />
         </div>
       </SheetContent>
     </Sheet>
   )
 }
-
-export default MobileNav
